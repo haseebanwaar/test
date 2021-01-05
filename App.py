@@ -1,17 +1,36 @@
 # importing the necessary libraries for deployment
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, json
 import joblib
 from pyforest import *
 
+
 # naming our app as app
-app = Flask(__name__, template_folder='template')
+from werkzeug.exceptions import HTTPException
+
+app = Flask(__name__)
+# app = Flask(__name__, template_folder='templates')
 # loading the pickle file for creating the web app
 model = joblib.load(open("model.pkl", "rb"))
 
+@app.errorhandler(HTTPException)
+def handle_exception(e):
+    """Return JSON instead of HTML for HTTP errors."""
+    # start with the correct headers and status code from the error
+    response = e.get_response()
+    # replace the body with JSON
+    response.data = json.dumps({
+        "code": e.code,
+        "name": e.name,
+        "description": e.description,
+
+    })
+    response.content_type = "application/json"
+    return response
 
 # defining the different pages of html and specifying the features required to be filled in the html form
 @app.route("/")
-def index():
+@app.route("/home")
+def home():
     return render_template("index.html")
     # return render_template("index.html")
 
