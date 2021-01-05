@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html >
-<!--From https://codepen.io/frytyler/pen/EGdtg-->
 <head>
   <meta charset="UTF-8">
   <title>ML API</title>
@@ -11,14 +10,13 @@
 
 </head>
 
-<img src="C:/Users/1234/Desktop/heroku/flower.jpeg">
 
-<body style="background-color:#8c03fc;">
+<body style="background-color:#937cb7;">
  <div class="login">
-	<h1><i>Predict Flowers</i></h1>
+	<h1><i>Predict Flowerss</i></h1>
 
      <!-- Main Input For Receiving Query to our ML -->
-    <form action="{{ url_for('predict')}}"method="post">
+    <form action="{{ url_for('predict')}}" method="post">
     	<input type="text" name="sepal length (cm)" placeholder="sepal length" required="required" />
         <input type="text" name="sepal width (cm)" placeholder="sepal width" required="required" />
 		<input type="text" name="petal length (cm)" placeholder="petal length" required="required" />

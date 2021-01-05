@@ -15,6 +15,7 @@ def index():
     return render_template("index.html")
     # return render_template("index.html")
 
+
 # creating a function for the prediction model by specifying the parameters and feeding it to the ML model
 @app.route("/predict", methods=["POST"])
 def predict():
