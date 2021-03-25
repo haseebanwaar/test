@@ -5,7 +5,8 @@ import pandas as pd
 import re
 from nltk.stem.snowball import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
-
+import matplotlib.pyplot as plt
+#%%
 
 base = "https://papers.nips.cc"
 html = requests.get("https://papers.nips.cc/paper/2020").text
@@ -43,7 +44,7 @@ df.drop(index=[*range(10)], axis = 0, inplace  = True)
 df.to_csv('/aaaaaaaaaaaaaa.csv')
 
 #%%
-df = pd.read_csv("papers.csv ")
+df = pd.read_csv("models/papers.csv ")
 df.drop('Unnamed: 0', axis = 1, inplace = True)
 df.columns = ['title','abstract']
 
@@ -53,7 +54,8 @@ df.abstract = df.abstract.apply(lambda x:re.sub(r'(\n|\r)+',' ',x))
 df.abstract = df.abstract.apply(lambda x:re.sub(r'  ',' ',x))
 
 #%%
-
+df.to_json('papers.json',orient= 'records')
+df.to_csv('Nips_papers.csv')
 stopwords = nltk.corpus.stopwords.words('english')
 stemmer = SnowballStemmer("english")
 #%%
@@ -98,7 +100,7 @@ for i in df.abstract:
 #define vectorizer parameters
 tfidf_vectorizer = TfidfVectorizer(max_df=0.8, max_features=200000,
                                  min_df=0.2, stop_words='english',
-                                 use_idf=True, tokenizer=tokenize_and_stem, ngram_range=(1,3))
+                                 use_idf=True, tokenizer=tokenize_only, ngram_range=(1,3))
 
 tfidf_matrix = tfidf_vectorizer.fit_transform(df.abstract) #fit the vectorizer to synopses
 
@@ -113,7 +115,7 @@ dist = 1 - cosine_similarity(tfidf_matrix)
 #%%
 from sklearn.cluster import KMeans
 
-num_clusters = 5
+num_clusters = 50
 
 km = KMeans(n_clusters=num_clusters)
 
@@ -127,9 +129,26 @@ from sklearn.externals import joblib
 #uncomment the below to save your model
 #since I've already run my model I am loading from the pickle
 
-joblib.dump(km,  'doc_cluster.pkl')
+joblib.dump(km,  'cluster50_token_only.pkl')
 
-# km = joblib.load('doc_cluster.pkl')
-# clusters = km.labels_.tolist()
-http://brandonrose.org/clustering
-look for topic modeling
+km = joblib.load('doc_cluster.pkl')
+clusters = km.labels_.tolist()
+
+
+#%%
+import json
+import os
+from sentence_transformers import SentenceTransformer, util
+
+#First, we load the papers dataset (with title and abstract information)
+dataset_file = 'papers.json'
+
+# if not os.path.exists(dataset_file):
+  # util.http_get("https://sbert.net/datasets/emnlp2016-2018.json", dataset_file)
+
+with open(dataset_file) as fIn:
+  papers = json.load(fIn)
+
+print(len(papers), "papers loaded")
+
+#%%
