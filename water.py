@@ -10,7 +10,7 @@ data = [*soup.find_all('ul')[1].find_all('li')]
 data1 = [*soup.find_all('ul')[1].children]
 
 list_of_papers = []
-print("asdasd")
+
 for item in data1:
     if item != '\n':
         title = item.find('a').text
