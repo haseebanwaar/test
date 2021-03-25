@@ -152,3 +152,24 @@ with open(dataset_file) as fIn:
 print(len(papers), "papers loaded")
 
 #%%
+#We then load the allenai-specter model with SentenceTransformers
+model = SentenceTransformer('allenai-specter')
+#To encode the papers, we must combine the title and the abstracts to a single string
+paper_texts = [paper['title'] + ' ' + paper['abstract'] for paper in papers]
+
+#Compute embeddings for all papers
+corpus_embeddings = model.encode(paper_texts, convert_to_tensor=True)
+#%%
+
+# We define a function, given title & abstract, searches our corpus for relevant (similar) papers
+def search_papers(title, abstract):
+    query_embedding = model.encode(title + ' ' + abstract, convert_to_tensor=True)
+
+    search_hits = util.semantic_search(query_embedding, corpus_embeddings)
+    search_hits = search_hits[0]  # Get the hits for the first query
+
+    print("Paper:", title)
+    print("Most similar papers:")
+    for hit in search_hits:
+        related_paper = papers[hit['corpus_id']]
+        print("{:.2f}\t{}".format(hit['score'], related_paper['title'], ))
