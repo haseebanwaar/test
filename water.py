@@ -35,8 +35,8 @@ for y,z in list_of_papers[11].items():
 df = pd.DataFrame(lists, )
 
 # df.drop(index=[*range(10)], axis = 0, inplace  = True)
-df.to_csv('g:/aaaaaaaaaaaaaa.csv')
-
+df.to_csv('/aaaaaaaaaaaaaa.csv')
+# df = pd.read_csv("g:/aaaaaaaaaaaaaa.csv ")
 
 soup_abstract1 = BeautifulSoup(lists[12][1][-1], 'html.parser')
 paragraphs1 = soup_abstract.find_all('p')
