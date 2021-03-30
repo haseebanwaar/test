@@ -18,10 +18,10 @@ for dirname, _, filenames in os.walk('/kaggle/input'):
 # You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
 
 #%%
-train_data = pd.read_csv("/kaggle/input/titanic/train.csv")
+train_data = pd.read_csv("models/trans/train.csv")
 train_data.head()
 
-test_data = pd.read_csv("/kaggle/input/titanic/test.csv")
+test_data = pd.read_csv("models/trans/test.csv")
 test_data.head()
 
 #%%
@@ -40,6 +40,7 @@ val_dataframe = pd.get_dummies(val_dataframe[features])
 train_dataframe_Y = train_dataframe.pop("Survived")
 
 #%%
+
 #optional?
 val_dataframe_X = val_dataframe[["Pclass","SibSp","Parch","Sex_female","Sex_male"]]
 val_dataframe_Y = val_dataframe[["Survived"]]
@@ -54,14 +55,12 @@ train_dataframe_Y = train_dataframe_Y.to_numpy()
 train_dataframe = train_dataframe.to_numpy()
 
 #%%
-from datetime import datetime
-from packaging import version
-logdir = "logs/scalars/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir)
 
-%load_ext tensorboard
-%tensorboard --logdir logs --bind_all
-
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="C:\\Users\\CB\\PycharmProjects\\tryout\\models\\logs",histogram_freq=1,profile_batch = 100000000)
+# python -m tensorboard.main --logdir $PWD/logs
+# %load_ext tensorboard
+# %tensorboard --logdir logs --bind_all
+#
 #%%
 
 model = tf.keras.Sequential([
@@ -78,10 +77,11 @@ model.compile(loss =  keras.losses.BinaryCrossentropy(),
 
 # tensorboard_callback = tf.keras.callbacks.TensorBoard("logs")
 
-model.fit(train_dataframe, train_dataframe_Y, epochs=100)
+model.fit(train_dataframe, train_dataframe_Y, epochs=1000, callbacks =[tensorboard_callback])
 
 # model.fit(train_dataframe, train_dataframe_Y, epochs=1000,
 #           validation_data = [val_dataframe])
+
 
 
 #%%
