@@ -7,6 +7,7 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow_core.python.keras import regularizers
 
 
 # Input data files are available in the read-only "../input/" directory
@@ -14,7 +15,6 @@ from tensorflow.keras import layers
 
 import os
 
-from tensorflow_core.python.keras import regularizers
 
 for dirname, _, filenames in os.walk('/kaggle/input'):
     for filename in filenames:
@@ -61,7 +61,7 @@ train_dataframe = train_dataframe.to_numpy()
 from datetime import datetime
 # log_dir = './models/logs/' + datetime.now().strftime("%Y%m%d-%H%M%S")
 
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=r".\models\logs\14",histogram_freq=1,
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=r".\models\logs\92",histogram_freq=1,
                                                       profile_batch = 0,update_freq='epoch')
 
 # python -m tensorboard.main --logdir C:\\Users\\CB\\PycharmProjects\\tryout\\models\\logs
@@ -71,25 +71,16 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=r".\models\logs\14
 #%%
 
 model = tf.keras.Sequential([
-  layers.Dense(16,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.01),
-               ),
-  layers.Dense(16,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.01),
-               ),
-  layers.Dense(16,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.01),
-               ),
-  layers.Dense(16,tf.keras.activations.relu,
+    layers.Dense(16,tf.keras.activations.relu,
                kernel_regularizer=regularizers.l2(0.01),
                ),
   layers.Dense(units=1, activation='sigmoid')
 ])
 
 model.compile(loss =  tf.keras.losses.BinaryCrossentropy(),
-                      optimizer = tf.keras.optimizers.Adam(lr=0.005), metrics=['accuracy'])
+                      optimizer = tf.keras.optimizers.Adam(lr=0.0005), metrics=['accuracy'])
 # model.compile(loss=keras.losses.categorical_crossentropy,
-#               optimizer=keras.optimizers.SGD(learning_rate=0.01, momentum=0.9, nesterov=True))
+#               optimizer=keras.optimizers.SGD(learning_rate=0.001, momentum=0.9, nesterov=True))
 
 model.fit(train_dataframe, train_dataframe_Y, epochs=1000, validation_data=[val_dataframe_X, val_dataframe_Y],
           callbacks =[tensorboard_callback])
@@ -102,6 +93,7 @@ model.fit(train_dataframe, train_dataframe_Y, epochs=1000, validation_data=[val_
 #%%
 y_pred = model.predict_classes(val_dataframe_X, batch_size=64, verbose=1)
 X_pred = model.predict_classes(X_test, batch_size=64, verbose=1)
+train_dataframe_Y_pred = model.predict_classes(train_dataframe, batch_size=64, verbose=1)
 #%%
 
 from sklearn.metrics import classification_report
@@ -109,6 +101,7 @@ from sklearn.metrics import classification_report
 # y_pred_bool = np.argmax(y_pred, axis=1)
 
 print(classification_report(val_dataframe_Y, y_pred))
+print(classification_report(train_dataframe_Y, train_dataframe_Y_pred))
 
 #%%
 keras.utils.plot_model(model, show_shapes=True, rankdir="LR",to_file = './models/keras.png')
@@ -116,5 +109,49 @@ keras.utils.plot_model(model, show_shapes=True, rankdir="LR",to_file = './models
 
 #%%
 output = pd.DataFrame({'PassengerId': test_data.PassengerId, 'Survived': X_pred.ravel()})
-output.to_csv('my_submission1.csv', index=False)
+output.to_csv('my_submissionSGD2layers.csv', index=False)
 print("Your submission was successfully saved!")
+
+#
+#%%
+
+model = tf.keras.Sequential([
+  layers.Dense(92,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
+
+  layers.Dense(92,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
+
+  layers.Dense(92,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
+
+  layers.Dense(92,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
+
+  layers.Dense(92,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
+    layers.Dense(92,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
+    layers.Dense(92,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
+  layers.Dense(units=1, activation='sigmoid')
+])
+
+model.compile(loss =  tf.keras.losses.BinaryCrossentropy(),
+                      optimizer = tf.keras.optimizers.Adam(lr=0.0005), metrics=['accuracy'])
+# model.compile(loss=keras.losses.categorical_crossentropy,
+#               optimizer=keras.optimizers.SGD(learning_rate=0.01, momentum=0.9, nesterov=True))
+
+model.fit(train_dataframe, train_dataframe_Y, epochs=1000, validation_data=[val_dataframe_X, val_dataframe_Y],
+          callbacks =[tensorboard_callback])
+
+# model.fit(train_dataframe, train_dataframe_Y, epochs=1000,
+#           validation_data = [val_dataframe])
+
