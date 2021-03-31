@@ -1,4 +1,7 @@
 
+
+#TODO, introduce validation data in tensorboard.
+
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -10,12 +13,12 @@ from tensorflow.keras import layers
 # For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
 
 import os
+
+from tensorflow_core.python.keras import regularizers
+
 for dirname, _, filenames in os.walk('/kaggle/input'):
     for filename in filenames:
         print(os.path.join(dirname, filename))
-
-# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All"
-# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
 
 #%%
 train_data = pd.read_csv("models/trans/train.csv")
@@ -55,29 +58,41 @@ train_dataframe_Y = train_dataframe_Y.to_numpy()
 train_dataframe = train_dataframe.to_numpy()
 
 #%%
+from datetime import datetime
+# log_dir = './models/logs/' + datetime.now().strftime("%Y%m%d-%H%M%S")
 
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="C:\\Users\\CB\\PycharmProjects\\tryout\\models\\logs",histogram_freq=1,profile_batch = 100000000)
-# python -m tensorboard.main --logdir $PWD/logs
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=r".\models\logs\14",histogram_freq=1,
+                                                      profile_batch = 0,update_freq='epoch')
+
+# python -m tensorboard.main --logdir C:\\Users\\CB\\PycharmProjects\\tryout\\models\\logs
 # %load_ext tensorboard
 # %tensorboard --logdir logs --bind_all
 #
 #%%
 
 model = tf.keras.Sequential([
-  layers.Dense(64),
+  layers.Dense(16,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
+  layers.Dense(16,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
+  layers.Dense(16,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
+  layers.Dense(16,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.01),
+               ),
   layers.Dense(units=1, activation='sigmoid')
 ])
 
-model.compile(loss =  keras.losses.BinaryCrossentropy(),
-                      optimizer = keras.optimizers.Adam(lr=0.0001), metrics=['accuracy'])
+model.compile(loss =  tf.keras.losses.BinaryCrossentropy(),
+                      optimizer = tf.keras.optimizers.Adam(lr=0.005), metrics=['accuracy'])
 # model.compile(loss=keras.losses.categorical_crossentropy,
 #               optimizer=keras.optimizers.SGD(learning_rate=0.01, momentum=0.9, nesterov=True))
 
-
-
-# tensorboard_callback = tf.keras.callbacks.TensorBoard("logs")
-
-model.fit(train_dataframe, train_dataframe_Y, epochs=1000, callbacks =[tensorboard_callback])
+model.fit(train_dataframe, train_dataframe_Y, epochs=1000, validation_data=[val_dataframe_X, val_dataframe_Y],
+          callbacks =[tensorboard_callback])
 
 # model.fit(train_dataframe, train_dataframe_Y, epochs=1000,
 #           validation_data = [val_dataframe])
@@ -96,3 +111,10 @@ from sklearn.metrics import classification_report
 print(classification_report(val_dataframe_Y, y_pred))
 
 #%%
+keras.utils.plot_model(model, show_shapes=True, rankdir="LR",to_file = './models/keras.png')
+
+
+#%%
+output = pd.DataFrame({'PassengerId': test_data.PassengerId, 'Survived': X_pred.ravel()})
+output.to_csv('my_submission1.csv', index=False)
+print("Your submission was successfully saved!")
