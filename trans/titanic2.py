@@ -36,13 +36,11 @@ model = tf.keras.Sequential([
     layers.Dense(16,tf.keras.activations.relu,
                kernel_regularizer=regularizers.l2(0.01),
                ),
-    layers.Dense(5,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.01),
-               ),
   layers.Dense(units=1, activation='sigmoid')
 ])
 
-model.compile(loss =  tf.keras.losses.BinaryCrossentropy(),
+
+model.compile(loss = tf.keras.losses.Hinge(reduction="auto", name="categorical_hinge"),
                       optimizer = tf.keras.optimizers.Adam(lr=0.0005), metrics=['accuracy'])
 # model.compile(loss=keras.losses.categorical_crossentropy,
 #               optimizer=keras.optimizers.SGD(learning_rate=0.001, momentum=0.9, nesterov=True))
@@ -59,13 +57,13 @@ train_dataframe_Y_pred = model.predict_classes(train_dataframe, batch_size=64, v
 #%%
 
 from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix
 
-# y_pred_bool = np.argmax(y_pred, axis=1)
-
-# print(classification_report(val_dataframe_Y, y_pred))
 print(classification_report(train_dataframe_Y, train_dataframe_Y_pred))
 
+print(accuracy_score(train_dataframe_Y, train_dataframe_Y_pred))
 
+print(confusion_matrix(train_dataframe_Y, train_dataframe_Y_pred))
 
 
 #%%

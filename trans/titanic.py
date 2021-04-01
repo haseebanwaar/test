@@ -57,11 +57,16 @@ X_test = pd.get_dummies(test_data[["Pclass", "Sex", "SibSp", "Parch"]])
 train_dataframe_Y = train_dataframe_Y.to_numpy()
 train_dataframe = train_dataframe.to_numpy()
 
+
+#%%
+i=1
 #%%
 from datetime import datetime
 # log_dir = './models/logs/' + datetime.now().strftime("%Y%m%d-%H%M%S")
+# i = 1
+i+=1
 
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=r".\models\logs\92",histogram_freq=1,
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=fr".\models\logs\{i}",histogram_freq=1,
                                                       profile_batch = 0,update_freq='epoch')
 
 # python -m tensorboard.main --logdir C:\\Users\\CB\\PycharmProjects\\tryout\\models\\logs
@@ -70,6 +75,11 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=r".\models\logs\92
 #
 #%%
 
+i+=1
+
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=fr".\models\logs\{i}",histogram_freq=1,
+                                                      profile_batch = 0,update_freq='epoch')
+
 model = tf.keras.Sequential([
     layers.Dense(16,tf.keras.activations.relu,
                kernel_regularizer=regularizers.l2(0.01),
@@ -77,7 +87,8 @@ model = tf.keras.Sequential([
   layers.Dense(units=1, activation='sigmoid')
 ])
 
-model.compile(loss =  tf.keras.losses.BinaryCrossentropy(),
+model.compile(loss =  tf.keras.losses.Hinge(reduction="auto", name="categorical_hinge"),
+              # tf.keras.losses.BinaryCrossentropy(),
                       optimizer = tf.keras.optimizers.Adam(lr=0.0005), metrics=['accuracy'])
 # model.compile(loss=keras.losses.categorical_crossentropy,
 #               optimizer=keras.optimizers.SGD(learning_rate=0.001, momentum=0.9, nesterov=True))
@@ -98,10 +109,19 @@ train_dataframe_Y_pred = model.predict_classes(train_dataframe, batch_size=64, v
 
 from sklearn.metrics import classification_report
 
-# y_pred_bool = np.argmax(y_pred, axis=1)
-
 print(classification_report(val_dataframe_Y, y_pred))
 print(classification_report(train_dataframe_Y, train_dataframe_Y_pred))
+
+
+#%%
+
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+print(accuracy_score(val_dataframe_Y, y_pred))
+print(accuracy_score(train_dataframe_Y, train_dataframe_Y_pred))
+
+print(confusion_matrix(val_dataframe_Y, y_pred))
+print(confusion_matrix(train_dataframe_Y, train_dataframe_Y_pred))
 
 #%%
 keras.utils.plot_model(model, show_shapes=True, rankdir="LR",to_file = './models/keras.png')
@@ -109,7 +129,7 @@ keras.utils.plot_model(model, show_shapes=True, rankdir="LR",to_file = './models
 
 #%%
 output = pd.DataFrame({'PassengerId': test_data.PassengerId, 'Survived': X_pred.ravel()})
-output.to_csv('my_submissionSGD2layers.csv', index=False)
+output.to_csv('my_submissionSGD2laye.csv', index=False)
 print("Your submission was successfully saved!")
 
 #
