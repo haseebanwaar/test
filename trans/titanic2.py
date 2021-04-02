@@ -74,30 +74,23 @@ print("Your submission was successfully saved!")
 #
 #%%
 
-model = tf.keras.Sequential([
-  layers.Dense(16,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.01),
-               ),
 
-  layers.Dense(16,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.01),
+
+model = tf.keras.Sequential([
+    layers.Dense(12,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.005),
                ),
-    layers.Dense(16,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.01),
+    layers.Dense(12,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.005),
                ),
-    layers.Dense(16,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.01),
+    layers.Dense(12,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.005),
+               ),
+    layers.Dense(12,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.005),
+               ),
+    layers.Dense(12,tf.keras.activations.relu,
+               kernel_regularizer=regularizers.l2(0.005),
                ),
   layers.Dense(units=1, activation='sigmoid')
 ])
-
-model.compile(loss =  tf.keras.losses.BinaryCrossentropy(),
-                      optimizer = tf.keras.optimizers.Adam(lr=0.0005), metrics=['accuracy'])
-# model.compile(loss=keras.losses.categorical_crossentropy,
-#               optimizer=keras.optimizers.SGD(learning_rate=0.01, momentum=0.9, nesterov=True))
-
-model.fit(train_dataframe, train_dataframe_Y, epochs=1000,)
-
-# model.fit(train_dataframe, train_dataframe_Y, epochs=1000,
-#           validation_data = [val_dataframe])
-

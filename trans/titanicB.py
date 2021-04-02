@@ -7,22 +7,32 @@ import pandas as pd
 import tensorflow as tf
 from sklearn import preprocessing
 from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow_core.python.keras import regularizers
-
-
-
+from tensorflow.keras import layers, regularizers
+from sklearn.model_selection import GridSearchCV
+from pandas_profiling import ProfileReport
 
 tf.random.set_seed = 100
 np.random.seed(100)
 
-#%%
+# %%
 train_data = pd.read_csv("models/trans/train.csv")
 train_data.head()
 
 test_data = pd.read_csv("models/trans/test.csv")
 test_data.head()
 
+#%%
+
+profile = ProfileReport(df_train, title=f"Pandas Profiling Report for Titanic Dataset"
+                        ,explorative=True
+                        #,samples=None
+                        #,correlations=None
+                        #,missing_diagrams=None
+                        #,duplicates=None
+                        #,interactions=None
+                       )
+profile.to_file("profile.html")
+display(profile)
 
 #%%
 val_dataframe = train_data.sample(frac=0.2, random_state=1337)
@@ -83,9 +93,8 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=fr".\models\logs\{
 #
 #%%
 make an ensemle
-
+submit fee
 scale only the contuous variables
-also use all data for training
 traindf = pd.read_csv('../input/titanic/train.csv').set_index('PassengerId')
 testdf = pd.read_csv('../input/titanic/test.csv').set_index('PassengerId')
 df = pd.concat([traindf, testdf], axis=0, sort=False)
@@ -108,6 +117,7 @@ model = tf.keras.Sequential([
     layers.Dense(32,tf.keras.activations.relu,
                kernel_regularizer=regularizers.l2(0.001),
                ),
+    layers.Dropout(0.2),
     layers.Dense(32,tf.keras.activations.relu,
                kernel_regularizer=regularizers.l2(0.001),
                ),
@@ -123,7 +133,7 @@ model.compile(loss =  tf.keras.losses.Hinge(reduction="auto", name="categorical_
 # model.compile(loss=keras.losses.categorical_crossentropy,
 #               optimizer=keras.optimizers.SGD(learning_rate=0.001, momentum=0.9, nesterov=True))
 
-model.fit(train_dataframe, train_dataframe_Y, epochs=300,validation_data=[val_dataframe, val_dataframe_Y],
+model.fit(train_dataframe, train_dataframe_Y, epochs=300,
           validation_split=0.2,callbacks =[tensorboard_callback])
 print(model.summary())
 # model.fit(train_dataframe, train_dataframe_Y, epochs=1000,
