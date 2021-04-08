@@ -1,96 +1,53 @@
-#%%
-
-import numpy as np
 import pandas as pd
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow_core.python.keras import regularizers
-
-#%%
-
-train_data = pd.read_csv(r"C:\Users\CB\PycharmProjects\tryout\models\trans\train.csv")
-train_data.head()
-
-test_data = pd.read_csv(r"C:\Users\CB\PycharmProjects\tryout\models\trans\test.csv")
-test_data.head()
-
-#%%
-
-features = ["Pclass", "Sex", "SibSp", "Parch","Survived"]
-train_dataframe = pd.get_dummies(train_data[features])
-
-train_dataframe_Y = train_dataframe.pop("Survived")
+import numpy as np
 #%%
 
 
-X_test = pd.get_dummies(test_data[["Pclass", "Sex", "SibSp", "Parch"]])
-#%%
+df = pd.read_csv('models/trans/olympics.csv',index_col  = 0, skiprows=1)
+for col in df.columns:
+    if col[:2] == '01':
+        df.rename(columns = {col : 'Gold' + col[4:]}, inplace = True)
+    if col[:2] == '02':
+        df.rename(columns = {col : 'Silver' + col[4:]}, inplace = True)
+    if col[:2] == '03':
+        df.rename(columns = {col : 'Bronze' + col[4:]}, inplace = True)
+    if col[:1] == '№':
+        df.rename(columns = {col : '#' + col[1:]}, inplace = True)
 
-# val_dataframe = val_dataframe.to_numpy()
-train_dataframe_Y = train_dataframe_Y.to_numpy()
-train_dataframe = train_dataframe.to_numpy()
-#%%
-
-model = tf.keras.Sequential([
-    layers.Dense(16,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.01),
-               ),
-  layers.Dense(units=1, activation='sigmoid')
-])
+names_ids = df.index.str.split('\s\(')
+df.index = names_ids.str[0]
+df = df.drop('Totals')
 
 
-model.compile(loss = tf.keras.losses.Hinge(reduction="auto", name="categorical_hinge"),
-                      optimizer = tf.keras.optimizers.Adam(lr=0.0005), metrics=['accuracy'])
-# model.compile(loss=keras.losses.categorical_crossentropy,
-#               optimizer=keras.optimizers.SGD(learning_rate=0.001, momentum=0.9, nesterov=True))
-
-model.fit(train_dataframe, train_dataframe_Y, epochs=1000)
-
-# model.fit(train_dataframe, train_dataframe_Y, epochs=1000,
-#           validation_data = [val_dataframe])
+df#%%
+#Q1
+df.iloc[0]
 
 #%%
-# y_pred = model.predict_classes(val_dataframe_X, batch_size=64, verbose=1)
-X_pred = model.predict_classes(X_test, batch_size=64, verbose=1)
-train_dataframe_Y_pred = model.predict_classes(train_dataframe, batch_size=64, verbose=1)
-#%%
-
-from sklearn.metrics import classification_report
-from sklearn.metrics import accuracy_score, confusion_matrix
-
-print(classification_report(train_dataframe_Y, train_dataframe_Y_pred))
-
-print(accuracy_score(train_dataframe_Y, train_dataframe_Y_pred))
-
-print(confusion_matrix(train_dataframe_Y, train_dataframe_Y_pred))
+#Q2
+df.iloc[df['Gold'].argmax()].name
 
 
 #%%
-output = pd.DataFrame({'PassengerId': test_data.PassengerId, 'Survived': X_pred.ravel()})
-output.to_csv(r'C:\Users\CB\PycharmProjects\tryout\my_sub.csv', index=False)
-print("Your submission was successfully saved!")
+#Q3
+df[['Gold.1','Gold']].diff(axis =1).idxmax()[1]
 
-#
+#%%
+#Q4
+#Only include countries that have won at least 1 gold in both summer and winter.
+countries_of_interest = df[(df['Gold.1']>0) & (df['Gold']>0)]
+
+ratio = countries_of_interest[['Gold.1','Gold']].diff(axis =1)['Gold']/countries_of_interest['Gold.2']
+ratio.idxmax()
+
 #%%
 
+def weighted_points(df):
+    gold_weight = 3
+    silver_weight = 3
+    bronze_weight = 3
+    Points = df['Gold.2']*gold_weight+df['Silver.2']*silver_weight+df['Bronze.2']*bronze_weight
+    return Points
 
+df.loc[df['Gold'].argmax()].name
 
-model = tf.keras.Sequential([
-    layers.Dense(12,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.005),
-               ),
-    layers.Dense(12,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.005),
-               ),
-    layers.Dense(12,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.005),
-               ),
-    layers.Dense(12,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.005),
-               ),
-    layers.Dense(12,tf.keras.activations.relu,
-               kernel_regularizer=regularizers.l2(0.005),
-               ),
-  layers.Dense(units=1, activation='sigmoid')
-])
